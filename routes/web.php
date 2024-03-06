@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Student\AssigmnetController;
-use App\Http\Controllers\Student\DashboardController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AlbumController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImageAlbumController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,13 +21,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
-    Route::controller(AssigmnetController::class)->group(function(){
-        Route::get('/assignments','index')->name('assgnment.index');
-        Route::get('assignments/create','create')->name('assgnment.create');
-        Route::post('assignments','store')->name('assgnment.store');
-    });
-});
 
+Route::group(['middleware' => ['auth', 'verified'],'prefix' => 'admin', 'as' => 'admin.'],function(){
+    Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
+    Route::resource('albums', AlbumController::class);
+    Route::get('albums/{id}/images',[AlbumController::class,'delete_album'])->name('albums.images.delete');
+});
 require __DIR__.'/auth.php';

@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\User;
+use App\Models\Teacher;
+use App\Models\Question;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Assigment extends Model
+{
+    use HasFactory;
+    protected $fillable = [
+        'user_id',
+        'teacher_id',
+        'is_correct'
+    ];
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function teacher(){
+        return $this->belongsTo(Teacher::class);
+    }
+
+    public function questions(){
+        return $this->belongsToMany(Question::class ,'assignment_questions' ,'assigment_id' ,'question_id');
+    }
+
+
+}

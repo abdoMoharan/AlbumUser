@@ -24,7 +24,7 @@ Route::get('/', function () {
 
 Route::group(['middleware' => ['auth', 'verified'],'prefix' => 'admin', 'as' => 'admin.'],function(){
     Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
-    Route::resource('albums', AlbumController::class);
+    Route::resource('albums', AlbumController::class)->except('show');
     Route::get('albums/{id}/images',[AlbumController::class,'delete_album'])->name('albums.images.delete');
 });
 require __DIR__.'/auth.php';

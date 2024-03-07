@@ -3,30 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\Album;
+use App\Models\AlbumImage;
 use Illuminate\Http\Request;
+use App\Interface\AlbumInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 use App\Http\Requests\AlbumRequeststore;
 use App\Http\Requests\AlbumrequestUpdate;
-use App\Models\AlbumImage;
 
 class AlbumController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public  AlbumInterface $album;
+    public function __construct(AlbumInterface $album)
+    {
+        $this->album = $album;
+    }
     public function index()
     {
-        $albums = Album::query()->with('images')->where('user_id', auth()->user()->id)->paginate(5);
-        return view('admin.pages.album.index', compact('albums'));
+        return $this->album->index();
     }
-
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        return view('admin.pages.album.create');
+        return $this->album->create();
     }
 
     /**
@@ -34,49 +35,16 @@ class AlbumController extends Controller
      */
     public function store(AlbumRequeststore $request)
     {
-        $data = $request->validated();
-        $user_id = auth()->user()->id;
-
-        try {
-            DB::beginTransaction();
-
-            $album = Album::create([
-                'name' => $data['name'],
-                'user_id' => $user_id,
-            ]);
-
-            foreach ($data['albums'] as $item) {
-                $album->images()->create([
-                    'image_name' => $item['image_name'],
-                    'image' => $item['image'],
-                ]);
-            }
-
-            DB::commit();
-
-            session()->flash('success', 'Album created successfully');
-            return redirect()->back();
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return back()->withError('Database error: ' . $e->getMessage());
-        }
+        return $this->album->store($request);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Album $album)
     {
-        $album->load('images');
-        return view('admin.pages.album.edit', compact('album'));
+        return $this->album->edit($album);
     }
 
     /**
@@ -84,42 +52,18 @@ class AlbumController extends Controller
      */
     public function update(AlbumrequestUpdate $request, Album $album)
     {
-        $data = $request->validated();
-        $album->update($data);
-        try {
-            DB::beginTransaction();
-            $album->update($data);
-            if (!is_null($data['albums']) && is_array($data['albums'])) {
-                foreach ($data['albums'] as $item) {
-                    if (isset($item['image'])) {
-                        $album->images()->create([
-                            'image_name' => $item['image_name'],
-                            'image' => $item['image'],
-                        ]);
-                    }
-                }
-            }
-            DB::commit();
-            session()->flash('success', 'Album Updated successfully');
-            return redirect()->back();
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return back()->withError('Database error: ' . $e->getMessage());
-        }
+        return $this->album->update($request,$album);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Album $album)
     {
-        //
+        return $this->album->destroy($album);
     }
 
     public function delete_album($id){
-       $album_image= AlbumImage::findOrFail($id)->delete();
-
-       session()->flash('success', 'Album image delete  successfully');
-       return redirect()->back();
+        return $this->album->delete_album($id);
     }
 }

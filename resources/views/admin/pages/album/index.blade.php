@@ -10,7 +10,11 @@
         </div>
 
         <div class="card-body">
-            {{-- <h5 class="card-title">Special title treatment</h5> --}}
+            @if (session()->has('success'))
+                <div class="alert alert-success" role="alert">
+                    {{ session('success') }}
+                </div>
+            @endif
             <p class="card-text">
             <table class="table table-striped">
                 <thead>
@@ -27,7 +31,8 @@
                             <th scope="row">{{ $loop->index + 1 }}</th>
                             <td>{{ $album->name }}</td>
                             <td>
-                                <a class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal{{$album->id}}">
+                                <a class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal{{ $album->id }}">
                                     view image<i class='bx bx-image-alt'></i>
                                 </a>
                                 @include('admin.pages.album.image_album')
@@ -35,10 +40,11 @@
                             <td>
                                 <a href="{{ route('admin.albums.edit', $album->id) }}"
                                     class="btn btn-outline-warning btn-sm">Edit</a>
-                                <a href="{{ route('admin.albums.destroy', $album->id) }}"
+                                <a  data-bs-toggle="modal" data-bs-target="#deleteModal{{ $album->id }}"
                                     class="btn btn-outline-danger btn-sm">Delete</a>
                             </td>
                         </tr>
+                        @include('admin.pages.album.delete')
                     @empty
                         <tr>
                             <th colspan="4" class="text-center text-danger">Not Found Data</th>
@@ -57,3 +63,4 @@
 
 </div>
 @endsection
+
